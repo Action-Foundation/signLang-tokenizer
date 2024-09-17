@@ -1,6 +1,18 @@
 from nltk.tokenize import MWETokenizer
 import re
 
+import json
+
+# Open and load the JSON file
+with open('videos.json', 'r') as file:
+    data = json.load(file)
+
+# Access data
+titles = [item['title'] for item in data]
+
+# Print the list of titles
+print(titles) 
+
 # Initialize the multi-word expression tokenizer
 tokenizer = MWETokenizer(separator='_')
 
@@ -14,7 +26,7 @@ def add_phrases_as_tuples(phrases):
 # Function to tokenize a sentence using the added phrases
 def tokenize_sentence(sentence):
     # Preprocess the sentence: remove punctuation and convert to lowercase
-    clean_sentence = re.sub(r'[^\w\s]', '', sentence).lower()  # Remove punctuation and lowercase
+    clean_sentence = re.sub(r'[^\w\s]', '', sentence).lower()  
     
     # Tokenize the sentence
     tokens = tokenizer.tokenize(clean_sentence.split())
@@ -23,8 +35,12 @@ def tokenize_sentence(sentence):
     print("Tokens:", tokens)
 
 # Example usage
-phrases = ['the west wing', 'new york city', 'artificial intelligence']
-sentence = 'Something about the west wing in New York City related to artificial intelligence.'
+phrases = titles
+sentence = "Abraham, feeling abashed, decided to abandon a lot of his old methods and focus on new techniques. "
+   
+
+print(sentence)
+
 
 # Add phrases as tuples to the tokenizer
 add_phrases_as_tuples(phrases)
