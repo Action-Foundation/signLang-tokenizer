@@ -88,7 +88,7 @@ def a2sl(item: Item):
         "after", "again", "against", "age", "all", "alone", "also", "and", "ask", "at",
         "b", "be", "beautiful", "before", "best", "better", "busy", "but", "bye",
         "c", "can", "cannot", "change", "college", "come", "computer",
-        "d", "day", "distance", "do not", "does not",
+        "d", "day", "distance", "do not", "does not","lot", "eggs"
         "e", "eat", "engineer",
         "f", "fight", "finish", "from", "g", "glitter", "go",
         "god", "gold", "good", "great", "h", "hand", "hands", "happy", "hello", "help",
