@@ -1,25 +1,6 @@
-# import pdfplumber
-
-# def extract_text_from_pdf(pdf_path):
-#     text = ""
-#     with pdfplumber.open(pdf_path) as pdf:
-#         for page in pdf.pages:
-#             text += page.extract_text()
-#     return text
-
-# # Example usage:
-# pdf_path = "pdf.pdf"  
-# extracted_text = extract_text_from_pdf(pdf_path)
-
-# # Save extracted text to a file
-# with open("extracted_text.txt", "w", encoding="utf-8") as file:
-#     file.write(extracted_text)
-
-# print("Text extracted and saved to extracted_text.txt")
-
-
 import pdfplumber
 import os
+from tokenizer import *
 
 def extract_text_and_images_from_pdf(pdf_path, output_image_folder):
     extracted_text = ""
@@ -46,12 +27,14 @@ pdf_path = "pdf.pdf"  # Replace with your PDF file path
 output_image_folder = "extracted_images"
 extracted_text = extract_text_and_images_from_pdf(pdf_path, output_image_folder)
 
-print(extracted_text)
+tokens = tokenize_sentence(extracted_text)
+
+print("The tokens for the story",tokens)
 
 # Save extracted text to a file
 with open("extracted_text.txt", "w", encoding="utf-8") as file:
     file.write(extracted_text)
 
-print("Text extracted and saved to extracted_text.txt")
+# print("Text extracted and saved to extracted_text.txt")
 
 

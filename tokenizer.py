@@ -46,10 +46,7 @@ def tokenize_sentence(sentence):
     tokens = tokenizer.tokenize(clean_sentence.split())
     
     for token in tokens:
-        print(f"Tokeensssssssssssssssssssssssssss {token}")
-        print(f"Videos {videos_dict}")
-        token
-
+        
         video_url = videos_dict.get(token, "fakeurl.mp4")
 
         video_link.append(video_url)
