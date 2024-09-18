@@ -36,20 +36,30 @@ def init_tokenizer():
 phrases, videos = init_tokenizer()
 videos_dict = videos
 
-# Function to tokenize a sentence using the added phrases
+
 def tokenize_sentence(sentence):
-    video_link=[]
+    video_link = []
+
     # Preprocess the sentence: remove punctuation and convert to lowercase
     clean_sentence = re.sub(r'[^\w\s]', '', sentence).lower()
-    
+
     # Tokenize the sentence
     tokens = tokenizer.tokenize(clean_sentence.split())
-    
+
     for token in tokens:
-        
         video_url = videos_dict.get(token, "fakeurl.mp4")
 
-        video_link.append(video_url)
+        if video_url == "fakeurl.mp4":
+            # Tokenize based on characters for the fake token
+            char_tokens = list(token)  # Break the token into characters
+            
+            # Get video URLs for each character and append them
+            for char in char_tokens:
+                char_video_url = videos_dict.get(char, "https://www.ksldictionary.com/videos/1525.mp4")
+                video_link.append(char_video_url)
+        else:
+            video_link.append(video_url)
 
-    # Print out the tokens
     return video_link
+
+
