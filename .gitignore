@@ -1,2 +1,4 @@
 venv
 .env
+extracted_images
+extracted_text.txt
