@@ -10,6 +10,8 @@ def process_sentence(sentence):
     # Load the list of stopwords from nltk
     stop_words = set(stopwords.words('english'))
     # print(stop_words)
+
+    ksl_stop_words = []
     
     # Remove stopwords
     filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
