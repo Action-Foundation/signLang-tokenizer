@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 from tokenizer import *
+from gemini import *
 import requests
 
 # Create a FastAPI instance
@@ -16,17 +17,38 @@ class VideoToken(BaseModel):
 # video tokens
 @app.post("/video_tokens")
 def read_video_tokens(video_caption:str):
-    tokens = tokenize_sentence(video_caption)
+    video_links = tokenize_sentence(video_caption)
 
-    return {"tokens": tokens}
+    return {"tokens":  video_links}
 
 
 # Root route
 @app.post("/text_to_ksl")
-def text_to_ksl(video_caption:str):
+def text_to_ksl(video_caption: str):
     tokens = tokenize_sentence(video_caption)
-    video_url = getCombinedVideo(tokens)
+
+    # Check the number of tokens
+    if len(tokens) == 1:
+        video_url = tokens[0]
+    else:
+        video_url = getCombinedVideo(tokens)  
+    
     return video_url
+
+
+
+# This is using Gemini for the conversitions
+@app.post("/story_to_ksl")
+def text_to_ksl(video_caption:str):
+    tokens = convert_sentence_ksl(video_caption)
+        # Check the number of tokens
+    if len(tokens) == 1:
+        video_url = tokens[0]
+    else:
+        video_url = getCombinedVideo(tokens)  
+    
+    return video_url
+ 
 
 def getCombinedVideo(tokens):
     api_url = "https://someshavideoapi.azurewebsites.net/combine_videos"

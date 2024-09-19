@@ -10,7 +10,7 @@ genai.configure(api_key=os.environ['API_KEY'])
 
 
 # Example complex sentence
-complex_sentence = """
+complex_se = """
 Once a day the big blue bus stops in Bubu's village to pick up people to go to town. Bubu has never seen such a big bus. He counts 9 passenger windows and a window for the driver. "There must be 9 rows of passenger seats with at least 6 seats in a row," Bubu thinks.
 If Bubu is right, how many passengers can the big blue bus carry?
 
@@ -33,50 +33,52 @@ Bubu is worried. "Will I ever get my uniform?" he asks his mother.
 Bubu works out that the trip to town and back will take about 4 hours. An hour to get there, 2 hours to shop and 1 hour to get back. "I have a soccer game with my friends at two o'clock. I hope the bus comes soon or we won't make it home in time."
 
 """
+def convert_sentence_ksl(complex_sentence):
+    # Create the meta prompt to guide the model's behavior
+    meta_prompt = """
+    Please simplify the following sentence for Kenya Sign Language interpretation. Follow these rules:
+    1. Capitalize persons or country  names that appear in the sentence names are like Jonh.
+    2. Remove these stop words: ['is', 'too', 'been', 'does', 'shouldnt', 'dont', 'shan't', 'while', 'haven't', 'so', 'until', 'it's', 'during', 'nor', 'of', 'had', 'whom', 'any', 'they'].
+    3. Replace certain words with their specific values:
+    - 'into' with 'in'
+    - 'haven't', 'won't', 'wouldn't', 'didn't' with 'bado', 'no', 'zero', 'nothing'
+    - 'until' with 'time what'
+    - 'when' with 'time what'
+    - 'through' with 'finish'
+    - 'most' with 'a lot'
+    - 'during' with 'time which'
+    - 'you'd' with 'you'
+    - 'further' with 'far'
+    - 'are' with 'time'
 
-# Create the meta prompt to guide the model's behavior
-meta_prompt = """
-Please simplify the following sentence for Kenya Sign Language interpretation. Follow these rules:
-1. Capitalize persons or country  names that appear in the sentence names are like Jonh.
-2. Remove these stop words: ['is', 'too', 'been', 'does', 'shouldnt', 'dont', 'shan't', 'while', 'haven't', 'so', 'until', 'it's', 'during', 'nor', 'of', 'had', 'whom', 'any', 'they'].
-3. Replace certain words with their specific values:
-   - 'into' with 'in'
-   - 'haven't', 'won't', 'wouldn't', 'didn't' with 'bado', 'no', 'zero', 'nothing'
-   - 'until' with 'time what'
-   - 'when' with 'time what'
-   - 'through' with 'finish'
-   - 'most' with 'a lot'
-   - 'during' with 'time which'
-   - 'you'd' with 'you'
-   - 'further' with 'far'
-   - 'are' with 'time'
+    4. If a sentence is continuous (e.g., 'I am going'), change it to present form (e.g., 'I go').
+    5. Identify if the sentence is a question, listing, or statement.
+    6. If the sentence is in the past, prepend 'past /'. If it’s in the present or future, prepend 'present/'. Remove tense markers in the final output and only retain the present tense form.
+    7. Exclude occupations or titles like 'Miss,' 'Mrs.,' 'President' from the final output.
+    8. If the sentence contains a name of place, city, country, village, i.e., the name of places will always start with a capital letter, so keep it capitalized.
+    9. Ensure the sentence follows a subject-object-verb order.
 
-4. If a sentence is continuous (e.g., 'I am going'), change it to present form (e.g., 'I go').
-5. Identify if the sentence is a question, listing, or statement.
-6. If the sentence is in the past, prepend 'past /'. If it’s in the present or future, prepend 'present/'. Remove tense markers in the final output and only retain the present tense form.
-7. Exclude occupations or titles like 'Miss,' 'Mrs.,' 'President' from the final output.
-8. If the sentence contains a name of place, city, country, village, i.e., the name of places will always start with a capital letter, so keep it capitalized.
-9. Ensure the sentence follows a subject-object-verb order.
+    Sentence: {}
+    """.format(complex_sentence)
 
-Sentence: {}
-""".format(complex_sentence)
+    # Generate content using the model
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(meta_prompt)
 
-# Generate content using the model
-model = genai.GenerativeModel("gemini-1.5-flash")
-response = model.generate_content(meta_prompt)
+    # Output the result
+    # print(response.text)
+    video_link=[]
 
-# Output the result
-# print(response.text)
-video_link=[]
+    # Extract the simplified sentence starting with "present/" or "past /"
+    simplified_sentence = None
+    tense_prefix = None
 
-# Extract the simplified sentence starting with "present/" or "past /"
-simplified_sentence = None
-tense_prefix = None
 
-def process_sentence(response_text, videos_dict):
     simplified_sentence = ""
     tense_prefix = ""
     video_link = []
+
+    response_text = response.text
 
     if "present/" in response_text:
         start_index = response_text.index("present/")
@@ -124,16 +126,11 @@ def process_sentence(response_text, videos_dict):
                 char_video_url = videos_dict[char]
                 video_link.append(char_video_url)
 
-        return output_json_str, video_link
+        return video_link
 
     return None, None
 
 
 
-json_output, video_links = process_sentence(response.text, videos_dict)
 
-if json_output and video_links:
-    print("JSON output:", json_output)
-    print("Video links:", video_links)
-else:
-    print("No valid sentence found or processing failed.")
+
