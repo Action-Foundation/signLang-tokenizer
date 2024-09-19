@@ -1,5 +1,6 @@
 import requests
 import re
+import json
 from tokenizer import *
 
 # Define the API endpoint
@@ -42,8 +43,19 @@ try:
         
         # Print the cleaned data
         print("Cleaned Data:")
-        for story in cleaned_data:
-            print(story)
+        print(cleaned_data[0])
+        # Assuming cleaned_data[0] contains the data you want to save
+        data_to_save = cleaned_data[0]
+
+        # Specify the filename
+        filename = 'cleaned_data.json'
+
+        # Save the data as a JSON file
+        with open(filename, 'w') as json_file:
+            json.dump(data_to_save, json_file, indent=4)  # Using indent for pretty printing
+
+        # for story in cleaned_data:
+        #     print(story[1])
     else:
         print(f"Failed to fetch data. Status code: {response.status_code}")
 

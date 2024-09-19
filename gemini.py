@@ -1,17 +1,43 @@
 import google.generativeai as genai
 import os
 import nltk
+import json
+from tokenizer import *
+
 
 # Configure Google Generative AI API
 genai.configure(api_key=os.environ['API_KEY'])
 
+
 # Example complex sentence
-complex_sentence = "Mr. Kilonzo went to church at Nairobi every Sunday"
+complex_sentence = """
+Once a day the big blue bus stops in Bubu's village to pick up people to go to town. Bubu has never seen such a big bus. He counts 9 passenger windows and a window for the driver. "There must be 9 rows of passenger seats with at least 6 seats in a row," Bubu thinks.
+If Bubu is right, how many passengers can the big blue bus carry?
+
+Tomorrow, Bubu's mother will take him to town to buy a new school uniform. She sells eggs for R15 a dozen. Most weeks she makes R450. How many dozen eggs does she need to sell to make R450? For the last 4 weeks, she has been able to save half her money to pay for Bubu's new uniform.
+Can you work out how much money she saved in 4 weeks?
+
+It's almost three months since Bubu's last bus trip. He cannot wait!
+Tomorrow is the big day. By seven o'clock, he is in bed, but he can't fall asleep. His mind is racing. He can't stop thinking about the trip to town. It's already half past nine, but Bubu is still wide awake.
+
+Every morning, Bubu's mother wakes him at seven o'clock. But today he is already wide awake by six o'clock, even though he only went to sleep at eleven o'clock last night.
+By seven o'clock he is washed and dressed and ready to go. How long did Bubu sleep last night?
+
+At quarter to eight Bubu and his mother get to the bus stop. The big blue bus is supposed to arrive by eight o'clock.
+Bubu's mother checks her watch. The big blue bus is already fifteen minutes late. "But the bus is always on time. I wonder what the problem is?" she says.
+
+Soon more people join them at the bus stop. They also look at their watches and ask why the bus is late. "It is already nine o'clock. I am going to be late for work!" says the bald man in the blue suit.
+Bubu and his mother have been waiting the longest. To Bubu, it feels like hours and hours. But it isn't really. How long have they been waiting?
+
+Bubu is worried. "Will I ever get my uniform?" he asks his mother.
+Bubu works out that the trip to town and back will take about 4 hours. An hour to get there, 2 hours to shop and 1 hour to get back. "I have a soccer game with my friends at two o'clock. I hope the bus comes soon or we won't make it home in time."
+
+"""
 
 # Create the meta prompt to guide the model's behavior
 meta_prompt = """
 Please simplify the following sentence for Kenya Sign Language interpretation. Follow these rules:
-1. Capitalize names that appear in the sentence.
+1. Capitalize persons or country  names that appear in the sentence names are like Jonh.
 2. Remove these stop words: ['is', 'too', 'been', 'does', 'shouldnt', 'dont', 'shan't', 'while', 'haven't', 'so', 'until', 'it's', 'during', 'nor', 'of', 'had', 'whom', 'any', 'they'].
 3. Replace certain words with their specific values:
    - 'into' with 'in'
@@ -40,41 +66,74 @@ model = genai.GenerativeModel("gemini-1.5-flash")
 response = model.generate_content(meta_prompt)
 
 # Output the result
-print(complex_sentence)
-print(response.text)
+# print(response.text)
+video_link=[]
 
-# Extract the simplified sentence starting with "present/"
+# Extract the simplified sentence starting with "present/" or "past /"
 simplified_sentence = None
+tense_prefix = None
 
-if "present/" in response.text:
-    start_index = response.text.index("present/")
-    simplified_sentence = response.text[start_index:].strip()
+def process_sentence(response_text, videos_dict):
+    simplified_sentence = ""
+    tense_prefix = ""
+    video_link = []
 
-if simplified_sentence:
-    # Tokenization using NLTK
-    words = nltk.word_tokenize(simplified_sentence)
-    tokens = []  # Initialize the tokens list
+    if "present/" in response_text:
+        start_index = response_text.index("present/")
+        simplified_sentence = response_text[start_index:].strip()
+        tense_prefix = "present/"
+    elif "past /" in response_text:
+        start_index = response_text.index("past /")
+        simplified_sentence = response_text[start_index:].strip()
+        tense_prefix = "past /"
 
-    # Check if the simplified sentence is a question
-    is_question = "?" in simplified_sentence  # Adjust this condition based on how you determine questions
+    if simplified_sentence:
+        # Tokenization using NLTK
+        words = nltk.word_tokenize(simplified_sentence)
+        tokens = []
 
-    # Add 'Present' as a token
-    tokens.append('Present')
+        # Add tense prefix as a token
+        if tense_prefix:
+            tokens.append(tense_prefix)
 
-    # Add 'type' if it's a question
-    if is_question:
-        tokens.append('type')
+        # Check if the simplified sentence is a question
+        is_question = "?" in simplified_sentence
 
-    for word in words:
-        if word.isupper():  # If the word is fully capitalized
-            tokens.extend(list(word))  # Add each letter as a separate token
-        else:
-            tokens.append(word)  # Add regular words to the list
+        # Add 'type' if it's a question
+        if is_question:
+            tokens.append('type')
 
-    print(tokens)  # Print the list of tokens
+        for word in words:
+            if word.isupper():
+                tokens.extend(list(word))
+            else:
+                tokens.append(word)
+
+        # Prepare output in JSON format
+        output_json = {
+            "simplified_sentence": simplified_sentence,
+            "tokens": tokens
+        }
+
+        # Convert to JSON string
+        output_json_str = json.dumps(output_json)
+
+        # Generate video links
+        for char in output_json["tokens"]:
+            if char in videos_dict:
+                char_video_url = videos_dict[char]
+                video_link.append(char_video_url)
+
+        return output_json_str, video_link
+
+    return None, None
+
+
+
+json_output, video_links = process_sentence(response.text, videos_dict)
+
+if json_output and video_links:
+    print("JSON output:", json_output)
+    print("Video links:", video_links)
 else:
-    print("No simplified sentence found.")
-
-
-
-
+    print("No valid sentence found or processing failed.")
