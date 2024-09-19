@@ -1,4 +1,5 @@
 venv
 .env
-extracted_images
+.venv
+**/__pycache__*
 extracted_text.txt
