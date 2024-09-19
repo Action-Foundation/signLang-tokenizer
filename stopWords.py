@@ -11,7 +11,27 @@ def process_sentence(sentence):
     stop_words = set(stopwords.words('english'))
     # print(stop_words)
 
-    ksl_stop_words = []
+    ksl_stop_words = [
+        "is", "too", "been", "does", "shouldnt", "dont", "shan't", "while", 
+        "haven't", "so", "until", "it's", "during", "nor", "of", "had", "whom", 
+        "any", "they"
+    ]
+
+    # Replace words mapping
+    replace_word = {
+        "into": "in",
+        "haven't": ["bado", "no", "zero", "nothing"],  # List of possible replacements
+        "won't": ["bado", "no", "zero", "nothing"],
+        "wouldn't": ["bado", "no", "zero", "nothing"],
+        "didn't": ["bado", "no", "zero", "nothing"],
+        "until": "time what",
+        "when": "time what",
+        "thruogh": "finish",  # Corrected the spelling of 'through'
+        "most": ["a lot"],
+        "during": "time which",
+        "you'd": ["you"],
+        "further": "far"
+    }
     
     # Remove stopwords
     filtered_tokens = [word for word in tokens if word.lower() not in stop_words]
