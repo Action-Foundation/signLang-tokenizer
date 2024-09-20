@@ -23,18 +23,20 @@ class VideoToken(BaseModel):
     token: str
     expiration: Optional[str] = None
 
+class VideoCaptionRequest(BaseModel):
+    video_caption: str
+
 # video tokens
 @app.post("/video_tokens")
-def read_video_tokens(video_caption:str):
-    video_links = tokenize_sentence(video_caption)
-
-    return {"tokens":  video_links}
+def read_video_tokens(request: VideoCaptionRequest):
+    video_links = tokenize_sentence(request.video_caption)
+    return {"tokens": video_links}
 
 
 # Root route
 @app.post("/text_to_ksl")
-def text_to_ksl(video_caption: str):
-    tokens = tokenize_sentence(video_caption)
+def text_to_ksl(request: VideoCaptionRequest):
+    tokens = tokenize_sentence(request.video_caption)
 
     # Check the number of tokens
     if len(tokens) == 1:
@@ -48,8 +50,8 @@ def text_to_ksl(video_caption: str):
 
 # This is using Gemini for the conversitions
 @app.post("/story_to_ksl")
-def text_to_ksl(video_caption:str):
-    tokens = convert_sentence_ksl(video_caption)
+def text_to_ksl(request: VideoCaptionRequest):
+    tokens = convert_sentence_ksl(request.video_caption)
         # Check the number of tokens
     if len(tokens) == 1:
         video_url = tokens[0]
