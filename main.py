@@ -4,9 +4,18 @@ from typing import List, Optional
 from tokenizer import *
 from gemini import *
 import requests
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create a FastAPI instance
 app = FastAPI(title="Video Tokens API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
 
 # Define a model for video tokens
 class VideoToken(BaseModel):
