@@ -40,11 +40,11 @@ def text_to_ksl(request: VideoCaptionRequest):
 
     # Check the number of tokens
     if len(tokens) == 1:
-        video_url = tokens[0]
+        video_url = tokens
     else:
         video_url = getCombinedVideo(tokens)  
     
-    return video_url
+    return {"tokens": video_url}
 
 
 
@@ -58,7 +58,7 @@ def text_to_ksl(request: VideoCaptionRequest):
     else:
         video_url = getCombinedVideo(tokens)  
     
-    return video_url
+    return {"tokens": video_url}
  
 
 def getCombinedVideo(tokens):
